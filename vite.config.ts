@@ -5,7 +5,7 @@ import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/btd6-roundle/",
+  base: "https://roundle.oatsfx.com/",
   plugins: [tailwindcss(), react()],
   resolve: {
     alias: {
