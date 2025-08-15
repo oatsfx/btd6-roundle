@@ -24,32 +24,22 @@ import { bloonImage } from "util/formatters";
 import { RoundGuess } from "components/RoundGuess";
 import useDailyNumber from "hooks/useDailyNumber";
 import { number } from "framer-motion";
+import { Loader } from "components/Loader";
 
 const Roundle: React.FC = () => {
   // const [answer, setAnswer] = React.useState<number>(
   //   Math.floor(Math.random() * originalRounds.rounds.length)
   // );
-  const { number: answer, seed, date, nextAnswerIn } = useDailyNumber(140);
-  console.log(seed);
-  const [guesses, setGuesses] = React.useState<number[]>(() => {
-    const item = localStorage.getItem("roundleGuesses");
-    if (!item) return [];
-    if (number.parse(localStorage.getItem("roundleId") ?? "0") !== seed)
-      return [];
-
-    try {
-      const parsed = JSON.parse(item);
-      if (!Array.isArray(parsed)) return [];
-
-      // Ensure all elements are numbers
-      return parsed.map(Number).filter((n) => !isNaN(n));
-    } catch {
-      return [];
-    }
-  });
+  const {
+    number: answer,
+    seed,
+    date,
+    nextAnswerIn,
+    loading,
+  } = useDailyNumber(140);
+  const [guesses, setGuesses] = React.useState<number[]>([]);
   const [disableInput, setDisableInput] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [time, setTime] = useState(new Date());
 
   const nextMidnight = new Date();
   nextMidnight.setDate(nextMidnight.getDate() + 1);
@@ -93,25 +83,22 @@ const Roundle: React.FC = () => {
     localStorage.setItem("roundleId", JSON.stringify(seed));
 
     if (newGuesses.length >= 6) {
-      console.log("end game");
       onOpen();
       setDisableInput(true);
     }
 
     if (newGuesses.includes(answer)) {
-      console.log("end game");
       onOpen();
       setDisableInput(true);
     }
 
-    console.log(newGuesses);
     e.currentTarget.reset(); // clears all inputs in the form
   };
 
   const buildResult = () => {
     let result = `BTD6 roundle ${
       date.getUTCMonth() + 1
-    }/${date.getUTCDate()}/${date.getUTCFullYear()}\n\n`;
+    }/${date.getUTCDate()}/${date.getUTCFullYear()}\n`;
 
     const reversed = [...guesses].reverse();
 
@@ -122,7 +109,7 @@ const Roundle: React.FC = () => {
 
     //⬆️⬇️
 
-    result += "\n\nPlay at: roundle.oatsfx.com";
+    result += "\n\nPlay at: https://roundle.oatsfx.com";
 
     return result;
   };
@@ -136,8 +123,34 @@ const Roundle: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (seed <= 0) return; // wait until seed is loaded
+
+    const item = localStorage.getItem("roundleGuesses");
+    let newGuesses: number[] = [];
+    if (!item) return;
+    const localId = number.parse(localStorage.getItem("roundleId") ?? "0");
+    if (number.parse(localStorage.getItem("roundleId") ?? "0") !== seed) return;
+
+    try {
+      const parsed = JSON.parse(item);
+      if (!Array.isArray(parsed)) return;
+
+      // Ensure all elements are numbers
+      newGuesses = parsed.map(Number).filter((n) => !isNaN(n));
+    } catch {
+      return;
+    }
+
+    setGuesses(newGuesses);
+  }, [seed]);
+
+  if (loading) {
+    return <Loader flavorText="Loading game..." />;
+  }
+
   return (
-    <div className="flex flex-col w-full items-center">
+    <div className="flex flex-col w-full items-center mt-10">
       {guessCount >= GUESS_COUNT_MAX || guesses.includes(answer) ? (
         <Button onPress={onOpen}>Show Results</Button>
       ) : (
@@ -180,7 +193,7 @@ const Roundle: React.FC = () => {
       ))} */}
 
       <div className="flex max-w-100 px-4 flex-col gap-2">
-        {guesses.length >= 6 ? (
+        {guesses.length >= 6 && !guesses.includes(answer) ? (
           <>
             <RoundGuess guess={answer} answer={answer} />
           </>

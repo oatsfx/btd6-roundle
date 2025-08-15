@@ -4,6 +4,7 @@ import "./App.css";
 import { HeroUIProvider, toast, ToastProvider } from "@heroui/react";
 import { useTheme } from "@heroui/use-theme";
 import { useEffect, useState } from "react";
+import { Footer } from "components/Footer";
 
 function App() {
   const navigate = useNavigate();
