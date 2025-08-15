@@ -13,7 +13,6 @@ const ViewPort: React.FC<{ Component: LazyExoticComponent<React.FC> }> = ({
       <div className="w-screen">
         <Navigation />
         <Component />
-        <Footer />
       </div>
     </div>
   );

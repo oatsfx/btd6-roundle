@@ -4,7 +4,8 @@ type DailyNumberResult = {
   number: number;
   seed: number;
   date: Date;
-  nextAnswerIn: number; // ms until next UTC midnight
+  nextAnswerIn: number;
+  loading: boolean;
 };
 
 const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
@@ -18,9 +19,10 @@ const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
 
   const [state, setState] = useState<DailyNumberResult>({
     number: 0,
-    seed: 0,
+    seed: -1,
     date: new Date(),
     nextAnswerIn: 0,
+    loading: true,
   });
 
   useEffect(() => {
@@ -47,6 +49,7 @@ const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
           seed,
           date: now,
           nextAnswerIn: nextMidnightUTC - now.getTime(),
+          loading: false,
         });
       } catch (e) {
         console.error("Failed to fetch server time", e);
