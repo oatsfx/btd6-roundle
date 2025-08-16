@@ -13,7 +13,7 @@ import {
 import { time } from "console";
 import { calcLength } from "framer-motion";
 
-const TIME_FACTOR = 5;
+const TIME_FACTOR = 5_000;
 const RBE_FACTOR = 5_000;
 const CASH_FACTOR = 500;
 const TOTAL_BLOON_FACTOR = 15;
