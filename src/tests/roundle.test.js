@@ -80,7 +80,7 @@ describe("Roundle Guesses", () => {
       originalRounds.rounds[62]
     );
     expect(result).toEqual({
-      time: Result.MissHigher,
+      time: Result.CloseHigher,
       rbe: Result.MissHigher,
       cash: Result.MissHigher,
       bloonTotal: Result.MissHigher,

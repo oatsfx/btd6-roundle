@@ -10,9 +10,11 @@ type DailyNumberResult = {
 
 const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
   const hashString = (str: string) => {
-    let hash = 293210;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash * 33) ^ str.charCodeAt(i);
+    let hash = 999;
+    str += "G7kP2xVzQ9mTaB4rHsYw";
+    for (const char of str) {
+      hash = (hash << 5) - hash + char.charCodeAt(0);
+      hash |= 0; // Constrain to 32bit integer
     }
     return Math.abs(hash);
   };
