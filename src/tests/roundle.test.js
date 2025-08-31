@@ -23,9 +23,10 @@ describe("Roundle Guesses", () => {
       originalRounds.rounds[38],
       originalRounds.rounds[48]
     );
+
     expect(result).toEqual({
       time: Result.MissHigher,
-      rbe: Result.CloseHigher,
+      rbe: Result.MissHigher,
       cash: Result.MissHigher,
       bloonTotal: Result.MissHigher,
       bloons: [
@@ -43,9 +44,13 @@ describe("Roundle Guesses", () => {
       originalRounds.rounds[47],
       originalRounds.rounds[48]
     );
+    console.log(
+      getRoundRbe(originalRounds.rounds[47]),
+      getRoundRbe(originalRounds.rounds[48])
+    );
     expect(result).toEqual({
       time: Result.MissLower,
-      rbe: Result.CloseHigher,
+      rbe: Result.MissHigher,
       cash: Result.MissHigher,
       bloonTotal: Result.MissHigher,
       bloons: [
@@ -118,7 +123,7 @@ describe("Roundle Guesses", () => {
     );
     expect(result).toEqual({
       time: Result.MissLower,
-      rbe: Result.MissHigher,
+      rbe: Result.CloseHigher,
       cash: Result.MissLower,
       bloonTotal: Result.MissLower,
       bloons: [
@@ -176,7 +181,7 @@ describe("Roundle Guesses", () => {
     );
     expect(result).toEqual({
       time: Result.MissLower,
-      rbe: Result.CloseLower,
+      rbe: Result.MissLower,
       cash: Result.CloseLower,
       bloonTotal: Result.CloseHigher,
       bloons: [

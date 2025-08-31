@@ -1,16 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { originalRounds } from "data/rounds/originalRounds";
 import {
-  bloonArray,
-  getBloonRbe,
-  getHealthRamping,
-  getRoundDurationMs,
-} from "types/roundSet";
-import {
   Button,
-  Divider,
   Form,
-  Input,
   Modal,
   ModalBody,
   ModalContent,
@@ -40,10 +32,6 @@ const Roundle: React.FC = () => {
   const [guesses, setGuesses] = React.useState<number[]>([]);
   const [disableInput, setDisableInput] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
-  const nextMidnight = new Date();
-  nextMidnight.setDate(nextMidnight.getDate() + 1);
-  nextMidnight.setHours(0, 0, 0, 0);
 
   const GUESS_COUNT_MAX = 6;
 
@@ -103,11 +91,9 @@ const Roundle: React.FC = () => {
     const reversed = [...guesses].reverse();
 
     for (let g of reversed) {
-      result += g === answer ? "✅" : g > answer ? "⬇️" : "⬆️";
-      //result += g === answer ? "✅" : "❌";
+      //result += g === answer ? "✅" : g > answer ? "⬇️" : "⬆️";
+      result += g === answer ? "✅" : "❌";
     }
-
-    //⬆️⬇️
 
     result += "\n\nPlay at: https://roundle.oatsfx.com";
 

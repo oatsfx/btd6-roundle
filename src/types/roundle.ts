@@ -14,7 +14,8 @@ import { time } from "console";
 import { calcLength } from "framer-motion";
 
 const TIME_FACTOR = 5_000;
-const RBE_FACTOR = 5_000;
+//const RBE_FACTOR = 5_000;
+const RBE_RANGE_FACTOR = 0.15;
 const CASH_FACTOR = 500;
 const TOTAL_BLOON_FACTOR = 15;
 const INDIV_BLOON_FACTOR = 5;
@@ -60,7 +61,7 @@ export const calculateRoundleResult = (
   const guessRoundRbe = getRoundRbe(guess);
   const answerRoundRbe = getRoundRbe(answer);
 
-  const rbe = calcDiff(guessRoundRbe, answerRoundRbe, RBE_FACTOR);
+  const rbe = calcRbeDiff(guessRoundRbe, answerRoundRbe, RBE_RANGE_FACTOR);
 
   const guessRoundCash = getRoundCash(guess);
   const answerRoundCash = getRoundCash(answer);
@@ -83,6 +84,26 @@ export const calculateRoundleResult = (
 
 const calcDiff = (guess: number, answer: number, factor: number): Result => {
   let diff = answer - guess;
+
+  let result = Result.NotPresent;
+  if (diff === 0) {
+    result = Result.Correct;
+  } else if (diff < 0 && diff > -factor) {
+    result = Result.CloseLower;
+  } else if (diff < 0) {
+    result = Result.MissLower;
+  } else if (diff > 0 && diff < factor) {
+    result = Result.CloseHigher;
+  } else if (diff > 0) {
+    result = Result.MissHigher;
+  }
+
+  return result;
+};
+
+const calcRbeDiff = (guess: number, answer: number, scalar: number): Result => {
+  let diff = answer - guess;
+  const factor = Math.ceil(answer * scalar);
 
   let result = Result.NotPresent;
   if (diff === 0) {
