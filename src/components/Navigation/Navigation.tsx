@@ -118,24 +118,23 @@ const Navigation = ({}: {}) => {
         </Modal>
         <Dropdown placement="bottom-end">
           <DropdownTrigger>
-            <Button
-              as={Link}
-              color="primary"
-              href="#"
-              variant="flat"
-              isIconOnly
-            >
+            <Button as={Link} color="primary" variant="flat" isIconOnly>
               <FaCog className="text-lg" />
             </Button>
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
-            <DropdownItem key="profile" className="h-14 gap-2">
-              <p className="font-semibold">Nothing here...</p>
-            </DropdownItem>
-            <DropdownItem
-              key="toast-setting"
+            {/* <DropdownItem
+              key="round-100-mode"
+              className="gap-2"
               closeOnSelect={false}
-            ></DropdownItem>
+            >
+              <Switch isDisabled size="sm">
+                Round 100 Mode
+              </Switch>
+            </DropdownItem> */}
+            <DropdownItem key="nothing" className="gap-2" closeOnSelect={false}>
+              Nothing here...
+            </DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </NavbarContent>

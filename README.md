@@ -36,7 +36,7 @@ Exact matches will be met with a green background and checkmark. Close matches w
 **A:** While you _could_ look at my ugly code, here are the ranges:
 
 - Round Length: within **5** seconds.
-- RBE: within **5,000**.
+- RBE: within **10%**.
 - Cash Earned: within **$500**.
 - Total Bloons: within **15** Bloons.
 

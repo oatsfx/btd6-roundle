@@ -51,6 +51,7 @@ import {
 } from "types/roundSet";
 import stopwatchImage from "images/misc/stopwatch.webp";
 import cashImage from "images/misc/cash.webp";
+import redBloonImage from "images/bloons/Red.webp";
 import { calculateRoundleResult, Result, SimpleResult } from "types/roundle";
 
 type RoundGuessProps = {
@@ -157,7 +158,7 @@ const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
                   getBgColor(guessResult.time)
                 }
               >
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <img className="h-6" src={stopwatchImage} />
                   <span className="font-semibold flex flex-col">
                     <span className="text-xs font-light">Length</span>
@@ -175,7 +176,7 @@ const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
                   getBgColor(guessResult.bloonTotal)
                 }
               >
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <span className="font-semibold flex flex-col">
                     <span className="text-xs font-light">Bloons</span>
                     {getTotalBloonCount(originalRounds.rounds[guess])}
@@ -191,7 +192,7 @@ const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
                   getBgColor(guessResult.cash)
                 }
               >
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <img className="w-6" src={cashImage} />
                   <span className="font-semibold flex flex-col">
                     <span className="text-xs font-light">Cash</span>$
@@ -211,7 +212,8 @@ const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
                   getBgColor(guessResult.rbe)
                 }
               >
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
+                  <img className="w-5" src={redBloonImage} />
                   <span className="font-semibold flex flex-col">
                     <span className="text-xs font-light flex flex-row items-center gap-1">
                       RBE
