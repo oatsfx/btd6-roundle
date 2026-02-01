@@ -52,19 +52,28 @@ import {
 import stopwatchImage from "images/misc/stopwatch.webp";
 import cashImage from "images/misc/cash.webp";
 import redBloonImage from "images/bloons/Red.webp";
-import { calculateRoundleResult, Result, SimpleResult } from "types/roundle";
+import {
+  calculateRoundleResult,
+  GameMode,
+  getRoundSetFromMode,
+  Result,
+  SimpleResult,
+} from "types/roundle";
 
 type RoundGuessProps = {
   guess: number;
   answer: number;
+  mode: GameMode;
 };
 
-const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
+const RoundGuess = ({ guess, answer, mode }: RoundGuessProps) => {
   const ARROW_SIZE = 12;
 
+  const rounds = getRoundSetFromMode(mode);
+
   const guessResult = calculateRoundleResult(
-    originalRounds.rounds[guess],
-    originalRounds.rounds[answer]
+    rounds.rounds[guess],
+    rounds.rounds[answer],
   );
 
   const getArrow = (result: Result) => {
@@ -163,7 +172,7 @@ const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
                   <span className="font-semibold flex flex-col">
                     <span className="text-xs font-light">Length</span>
                     {convertMsToSecondsFormat(
-                      getRoundDurationMs(originalRounds.rounds[guess])
+                      getRoundDurationMs(rounds.rounds[guess]),
                     )}
                   </span>
                 </div>
@@ -179,7 +188,7 @@ const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
                 <div className="flex items-center gap-2">
                   <span className="font-semibold flex flex-col">
                     <span className="text-xs font-light">Bloons</span>
-                    {getTotalBloonCount(originalRounds.rounds[guess])}
+                    {getTotalBloonCount(rounds.rounds[guess])}
                   </span>
                 </div>
                 {getArrow(guessResult.bloonTotal)}
@@ -200,7 +209,7 @@ const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
                       cashVal % 1 === 0
                         ? cashVal.toString()
                         : cashVal.toFixed(2))(
-                      getRoundCash(originalRounds.rounds[guess])
+                      getRoundCash(rounds.rounds[guess]),
                     )}
                   </span>
                 </div>
@@ -224,7 +233,7 @@ const RoundGuess = ({ guess, answer }: RoundGuessProps) => {
                         <FaInfoCircle />
                       </Tooltip>
                     </span>
-                    {getRoundRbe(originalRounds.rounds[guess])}
+                    {getRoundRbe(rounds.rounds[guess])}
                   </span>
                 </div>
                 {getArrow(guessResult.rbe)}
