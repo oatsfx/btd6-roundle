@@ -1415,7 +1415,7 @@ export const originalRounds: RoundSet = {
           duration: 7.450961538461541,
         },
         {
-          bloon: "Ceramic",
+          bloon: "CeramicRegrow",
           count: 10,
           start: 18.16,
           duration: 8,
