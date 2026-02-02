@@ -1,23 +1,24 @@
 import { useState, useEffect } from "react";
+import { GameMode, GAME_MODES, gameModeToHashRecord } from "types/roundle";
 
 type DailyNumberResult = {
-  number: number;
-  seed: number;
+  answers: Record<GameMode, number>;
+  seeds: Record<GameMode, number>;
   date: Date;
   nextAnswerIn: number;
   loading: boolean;
 };
 
 const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
-  const hashString = (date: Date) => {
-    let hash = 999;
+  const hashString = (date: Date, mode: GameMode) => {
+    let hash = gameModeToHashRecord[mode];
     const year = date.getUTCFullYear();
     const month = date.getUTCMonth();
     const day = date.getUTCDate();
     const dayOfYear = Math.floor(
       (Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) -
         Date.UTC(date.getUTCFullYear(), 0, 0)) /
-        86400000
+        86400000,
     );
 
     let str = `${dayOfYear / hash}-${year}-${month + 1}-${day}`;
@@ -25,7 +26,7 @@ const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
     str += btoa(str);
     for (const char of str) {
       hash = (hash << 5) - hash + char.charCodeAt(0);
-      hash |= 0; // Constrain to 32bit integer
+      hash |= 0; // constrain to 32-bit
     }
     // console.log(
     //   Math.abs(hash) % maxExclusive,
@@ -38,8 +39,14 @@ const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
   };
 
   const [state, setState] = useState<DailyNumberResult>({
-    number: 0,
-    seed: -1,
+    answers: GAME_MODES.reduce(
+      (acc, mode) => ({ ...acc, [mode]: 0 }),
+      {} as Record<GameMode, number>,
+    ),
+    seeds: GAME_MODES.reduce(
+      (acc, mode) => ({ ...acc, [mode]: 0 }),
+      {} as Record<GameMode, number>,
+    ),
     date: new Date(),
     nextAnswerIn: 0,
     loading: true,
@@ -114,14 +121,22 @@ const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
         const month = now.getUTCMonth();
         const day = now.getUTCDate();
 
-        const seed = hashString(now);
-        const number = seed % maxExclusive;
+        const seeds: Record<GameMode, number> = {} as Record<GameMode, number>;
+
+        const answers: Record<GameMode, number> = {} as Record<
+          GameMode,
+          number
+        >;
+        GAME_MODES.forEach((mode) => {
+          seeds[mode] = hashString(now, mode);
+          answers[mode] = seeds[mode] % maxExclusive;
+        });
 
         nextMidnightUTC = Date.UTC(year, month, day + 1);
 
         setState({
-          number,
-          seed,
+          answers,
+          seeds,
           date: now,
           nextAnswerIn: nextMidnightUTC - now.getTime(),
           loading: false,

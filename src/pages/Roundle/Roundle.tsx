@@ -1,7 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { originalRounds } from "data/rounds/originalRounds";
 import {
   Button,
+  Card,
+  CardBody,
+  Chip,
   Form,
   Modal,
   ModalBody,
@@ -10,32 +13,35 @@ import {
   ModalHeader,
   NumberInput,
   PressEvent,
+  Tab,
+  Tabs,
   useDisclosure,
 } from "@heroui/react";
-import { bloonImage } from "util/formatters";
 import { RoundGuess } from "components/RoundGuess";
 import useDailyNumber from "hooks/useDailyNumber";
 import { number } from "framer-motion";
 import { Loader } from "components/Loader";
+import { GAME_MODES, GameMode } from "types/roundle";
 
 const Roundle: React.FC = () => {
   // const [answer, setAnswer] = React.useState<number>(
   //   Math.floor(Math.random() * originalRounds.rounds.length)
   // );
-  const {
-    number: answer,
-    seed,
-    date,
-    nextAnswerIn,
-    loading,
-  } = useDailyNumber(140);
-  const [guesses, setGuesses] = React.useState<number[]>([]);
+  const [guesses, setGuesses] = React.useState<Record<GameMode, number[]>>({
+    Original: [],
+    Alternate: [],
+  });
   const [disableInput, setDisableInput] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [mode, setMode] = useState<GameMode>("Original");
+  const { answers, seeds, date, nextAnswerIn, loading } = useDailyNumber(140);
 
-  const GUESS_COUNT_MAX = 6;
+  const GUESS_COUNT_MAX: Record<GameMode, number> = {
+    Original: 6,
+    Alternate: 8,
+  };
 
-  const guessCount = guesses.length;
+  const guessCount = guesses[mode].length;
 
   const formatTime = (): string => {
     const totalMs = nextAnswerIn;
@@ -43,7 +49,7 @@ const Roundle: React.FC = () => {
     const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, "0");
     const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(
       2,
-      "0"
+      "0",
     );
     const seconds = String(totalSeconds % 60).padStart(2, "0");
     return `${hours}:${minutes}:${seconds}`;
@@ -52,7 +58,7 @@ const Roundle: React.FC = () => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (guesses.length >= 6) {
+    if (guesses[mode].length >= GUESS_COUNT_MAX[mode]) {
       return;
     }
 
@@ -63,19 +69,22 @@ const Roundle: React.FC = () => {
 
     const zeroedIndexGuess = guess - 1;
 
-    if (guesses.includes(zeroedIndexGuess)) return;
+    if (guesses[mode].includes(zeroedIndexGuess)) return;
 
-    const newGuesses = [zeroedIndexGuess, ...guesses];
+    // add new guess for the current mode
+    const newGuesses = {
+      ...guesses,
+      [mode]: [zeroedIndexGuess, ...guesses[mode]],
+    };
+
     setGuesses(newGuesses);
     localStorage.setItem("roundleGuesses", JSON.stringify(newGuesses));
-    localStorage.setItem("roundleId", JSON.stringify(seed));
+    localStorage.setItem("roundleId", JSON.stringify(seeds));
 
-    if (newGuesses.length >= 6) {
-      onOpen();
-      setDisableInput(true);
-    }
-
-    if (newGuesses.includes(answer)) {
+    if (
+      newGuesses[mode].length >= GUESS_COUNT_MAX[mode] ||
+      newGuesses[mode].includes(answers[mode])
+    ) {
       onOpen();
       setDisableInput(true);
     }
@@ -84,15 +93,15 @@ const Roundle: React.FC = () => {
   };
 
   const buildResult = () => {
-    let result = `BTD6 roundle ${
+    let result = `BTD6 roundle${mode === "Alternate" ? " (ABR)" : ""} ${
       date.getUTCMonth() + 1
     }/${date.getUTCDate()}/${date.getUTCFullYear()}\n`;
 
-    const reversed = [...guesses].reverse();
+    const reversed = [...guesses[mode]].reverse();
 
     for (let g of reversed) {
       //result += g === answer ? "✅" : g > answer ? "⬇️" : "⬆️";
-      result += g === answer ? "✅" : "❌";
+      result += g === answers[mode] ? "✅" : "❌";
     }
 
     result += "\n\nPlay at: https://roundle.oatsfx.com";
@@ -109,27 +118,55 @@ const Roundle: React.FC = () => {
     }
   };
 
+  const handleModeChange = (s: string) => {
+    const newMode = s as GameMode;
+    if (
+      !(
+        guesses[newMode].length >= GUESS_COUNT_MAX[mode] ||
+        guesses[newMode].includes(answers[mode])
+      )
+    ) {
+      setDisableInput(false);
+    }
+    setMode(newMode);
+  };
+
   useEffect(() => {
-    if (seed <= 0) return; // wait until seed is loaded
+    if (Object.values(seeds).length <= 0) return; // wait until seed is loaded
+    if (seeds[mode] <= 0) return; // wait until seed is loaded
+
+    console.log("a");
 
     const item = localStorage.getItem("roundleGuesses");
-    let newGuesses: number[] = [];
     if (!item) return;
-    const localId = number.parse(localStorage.getItem("roundleId") ?? "0");
-    if (number.parse(localStorage.getItem("roundleId") ?? "0") !== seed) return;
+    console.log("a");
+
+    const localId = localStorage.getItem("roundleId");
+    if (!localId) return;
+    const parsedId = JSON.parse(localId);
+    if (parsedId[mode] !== seeds[mode]) return;
+    console.log("a");
 
     try {
       const parsed = JSON.parse(item);
-      if (!Array.isArray(parsed)) return;
+      if (typeof parsed !== "object" || parsed === null) return;
 
-      // Ensure all elements are numbers
-      newGuesses = parsed.map(Number).filter((n) => !isNaN(n));
+      const newGuesses: Record<GameMode, number[]> = {} as Record<
+        GameMode,
+        number[]
+      >;
+
+      GAME_MODES.forEach((mode) => {
+        newGuesses[mode] = Array.isArray(parsed[mode])
+          ? parsed[mode].map(Number).filter((n) => !isNaN(n))
+          : [];
+      });
+
+      setGuesses(newGuesses);
     } catch {
       return;
     }
-
-    setGuesses(newGuesses);
-  }, [seed]);
+  }, [seeds[mode]]);
 
   if (loading) {
     return <Loader flavorText="Loading game..." />;
@@ -137,7 +174,39 @@ const Roundle: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full items-center mt-10">
-      {guessCount >= GUESS_COUNT_MAX || guesses.includes(answer) ? (
+      <div className="flex flex-col py-2">
+        <Tabs
+          aria-label="Game Mode Tabs"
+          color="primary"
+          items={GAME_MODES.map((mode) => ({
+            id: mode,
+            label: mode,
+            content: mode,
+          }))}
+          selectedKey={mode}
+          onSelectionChange={(key) => handleModeChange(key as GameMode)}
+        >
+          {(item) => (
+            <Tab
+              key={item.id}
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>{item.label}</span>
+                  {item.id === "Alternate" ? (
+                    <Chip size={"sm"} color="danger">
+                      NEW
+                    </Chip>
+                  ) : (
+                    <></>
+                  )}
+                </div>
+              }
+            />
+          )}
+        </Tabs>
+      </div>
+      {guessCount >= GUESS_COUNT_MAX[mode] ||
+      guesses[mode].includes(answers[mode]) ? (
         <Button onPress={onOpen}>Show Results</Button>
       ) : (
         <Form
@@ -161,7 +230,7 @@ const Roundle: React.FC = () => {
         </Form>
       )}
       <p className="p-2">
-        Guesses: {guessCount}/{GUESS_COUNT_MAX}
+        Guesses: {guessCount}/{GUESS_COUNT_MAX[mode]}
       </p>
       {/* <div className="flex flex-wrap items-center justify-center gap-1">
         {bloonArray.map((x) => (
@@ -179,15 +248,20 @@ const Roundle: React.FC = () => {
       ))} */}
 
       <div className="flex max-w-100 px-4 flex-col gap-2">
-        {guesses.length >= 6 && !guesses.includes(answer) ? (
+        {guesses[mode].length >= GUESS_COUNT_MAX[mode] &&
+        !guesses[mode].includes(answers[mode]) ? (
           <>
-            <RoundGuess guess={answer} answer={answer} />
+            <RoundGuess
+              guess={answers[mode]}
+              answer={answers[mode]}
+              mode={mode}
+            />
           </>
         ) : (
           <></>
         )}
-        {guesses.map((x) => (
-          <RoundGuess guess={x} answer={answer} key={x} />
+        {guesses[mode].map((x) => (
+          <RoundGuess guess={x} answer={answers[mode]} key={x} mode={mode} />
         ))}
       </div>
 
@@ -197,15 +271,15 @@ const Roundle: React.FC = () => {
             <>
               <ModalHeader className="flex flex-col gap-1" />
               <ModalBody>
-                {guesses.includes(answer) ? (
+                {guesses[mode].includes(answers[mode]) ? (
                   <>
                     <p className="text-success text-lg font-bold">
                       You won! - {date.getUTCMonth() + 1}/{date.getUTCDate()}/
                       {date.getUTCFullYear()}
                     </p>
                     <p>
-                      You found out that today's BTD6 round was R{answer + 1}.
-                      Check back tomorrow for a new game.
+                      You found out that today's BTD6 round was R
+                      {answers[mode] + 1}. Check back tomorrow for a new game.
                     </p>
                   </>
                 ) : (
@@ -217,14 +291,18 @@ const Roundle: React.FC = () => {
                     <p>Unlucky. Better luck next time.</p>
                   </>
                 )}
-                <RoundGuess guess={answer} answer={answer} />
+                <RoundGuess
+                  guess={answers[mode]}
+                  answer={answers[mode]}
+                  mode={mode}
+                />
                 <div className="flex flex-col items-center gap-1">
                   <p>Next game available in:</p>
                   <p className="font-semibold text-xl">{formatTime()}</p>
                 </div>
               </ModalBody>
               <ModalFooter>
-                <p className="text-xs italic opacity-10">{seed}</p>
+                <p className="text-xs italic opacity-10">{seeds[mode]}</p>
                 <Button onPress={copyResult}>Copy Result</Button>
                 <Button color="primary" onPress={onClose}>
                   Close

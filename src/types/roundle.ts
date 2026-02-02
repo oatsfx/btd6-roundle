@@ -9,9 +9,11 @@ import {
   getTotalBloonCount,
   getUniqueBloons,
   Round,
+  RoundSet,
 } from "./roundSet";
 import { time } from "console";
 import { calcLength } from "framer-motion";
+import { alternateRounds } from "data/rounds/AlternateRounds";
 
 const TIME_FACTOR = 5_000;
 //const RBE_FACTOR = 5_000;
@@ -20,6 +22,13 @@ const CASH_FACTOR = 500;
 const TOTAL_BLOON_FACTOR = 15;
 const INDIV_BLOON_FACTOR = 5;
 // const INDIV_MOAB_FACTOR = 2;
+
+export const GAME_MODES: GameMode[] = ["Original", "Alternate"];
+export type GameMode = "Original" | "Alternate";
+export const gameModeToHashRecord: Record<GameMode, number> = {
+  Original: 999,
+  Alternate: 998,
+};
 
 export type RoundleResult = {
   time: Result;
@@ -49,9 +58,18 @@ export type BloonResult = {
   result: SimpleResult;
 };
 
+export const getRoundSetFromMode = (mode: GameMode): RoundSet => {
+  switch (mode) {
+    case "Alternate":
+      return alternateRounds;
+    default:
+      return originalRounds;
+  }
+};
+
 export const calculateRoundleResult = (
   guess: Round,
-  answer: Round
+  answer: Round,
 ): RoundleResult => {
   const guessRoundTime = getRoundDurationMs(guess);
   const answerRoundTime = getRoundDurationMs(answer);
@@ -74,7 +92,7 @@ export const calculateRoundleResult = (
   const bloonTotal = calcDiff(
     guessRoundBloonTotal,
     answerRoundBloonTotal,
-    TOTAL_BLOON_FACTOR
+    TOTAL_BLOON_FACTOR,
   );
 
   const bloons: BloonResult[] = getBloonResults(guess, answer);
@@ -123,7 +141,7 @@ const calcRbeDiff = (guess: number, answer: number, scalar: number): Result => {
 
 const getBloonResults = (guess: Round, answer: Round) => {
   const guessBloons = bloonArray.filter((b) =>
-    guess.bloonGroups.some((x) => x.bloon === b)
+    guess.bloonGroups.some((x) => x.bloon === b),
   );
 
   const result: BloonResult[] = [];
@@ -136,15 +154,15 @@ const getBloonResults = (guess: Round, answer: Round) => {
     const bloonNeighbors = getBloonNeighbors(bloon);
 
     const correctNeighbors = getUniqueBloons(answer).filter(
-      (x) => bloonNeighbors.includes(x) && getUniqueBloons(guess).includes(x)
+      (x) => bloonNeighbors.includes(x) && getUniqueBloons(guess).includes(x),
     ).length;
 
     const moreNeighbors = getUniqueBloons(answer).filter(
-      (x) => bloonNeighbors.includes(x) && !getUniqueBloons(guess).includes(x)
+      (x) => bloonNeighbors.includes(x) && !getUniqueBloons(guess).includes(x),
     ).length;
 
     for (const n of bloonNeighbors.filter((n) =>
-      getUniqueBloons(guess).some((x) => x === n)
+      getUniqueBloons(guess).some((x) => x === n),
     )) {
       if (getUniqueBloons(answer).some((x) => x === n)) {
         result.push({ bloon: n, result: SimpleResult.Correct });

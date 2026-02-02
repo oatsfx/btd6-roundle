@@ -61,6 +61,7 @@ const Navigation = ({}: {}) => {
           "data-[active=true]:after:bg-primary",
         ],
       }}
+      className="outline outline-1 outline-primary"
     >
       <NavbarMenuToggle
         aria-label={isMenuOpen ? "Close menu" : "Open menu"}
@@ -99,7 +100,7 @@ const Navigation = ({}: {}) => {
                 <ModalBody>
                   <h3 className="text-lg font-bold">How to Play</h3>
                   <p>Guess the BTD6 round in 6 guesses.</p>
-                  <RoundGuess guess={73} answer={82} />
+                  <RoundGuess guess={73} answer={82} mode={"Original"} />
                   <p className="text-sm">
                     In this example, we see that the number of bloons in the
                     correct round is close to 136. We see that the length is
