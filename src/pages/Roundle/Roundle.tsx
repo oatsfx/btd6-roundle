@@ -192,13 +192,6 @@ const Roundle: React.FC = () => {
               title={
                 <div className="flex items-center space-x-2">
                   <span>{item.label}</span>
-                  {item.id === "Alternate" ? (
-                    <Chip size={"sm"} color="danger">
-                      NEW
-                    </Chip>
-                  ) : (
-                    <></>
-                  )}
                 </div>
               }
             />
