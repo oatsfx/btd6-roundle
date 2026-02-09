@@ -9,7 +9,7 @@ type DailyNumberResult = {
   loading: boolean;
 };
 
-const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
+const useDailyNumber = (): DailyNumberResult => {
   const hashString = (date: Date, mode: GameMode) => {
     let hash = gameModeToHashRecord[mode];
     const year = date.getUTCFullYear();
@@ -39,11 +39,11 @@ const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
   };
 
   const [state, setState] = useState<DailyNumberResult>({
-    answers: GAME_MODES.reduce(
+    answers: Object.values(GAME_MODES).reduce(
       (acc, mode) => ({ ...acc, [mode]: 0 }),
       {} as Record<GameMode, number>,
     ),
-    seeds: GAME_MODES.reduce(
+    seeds: Object.values(GAME_MODES).reduce(
       (acc, mode) => ({ ...acc, [mode]: 0 }),
       {} as Record<GameMode, number>,
     ),
@@ -127,9 +127,10 @@ const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
           GameMode,
           number
         >;
-        GAME_MODES.forEach((mode) => {
-          seeds[mode] = hashString(now, mode);
-          answers[mode] = seeds[mode] % maxExclusive;
+        Object.keys(GAME_MODES).forEach((mode) => {
+          const gameMode = mode as GameMode;
+          seeds[gameMode] = hashString(now, gameMode);
+          answers[gameMode] = seeds[gameMode] % GAME_MODES[gameMode];
         });
 
         nextMidnightUTC = Date.UTC(year, month, day + 1);
@@ -156,7 +157,7 @@ const useDailyNumber = (maxExclusive = 140): DailyNumberResult => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [maxExclusive]);
+  }, []);
 
   return state;
 };

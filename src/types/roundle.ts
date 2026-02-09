@@ -23,7 +23,10 @@ const TOTAL_BLOON_FACTOR = 15;
 const INDIV_BLOON_FACTOR = 5;
 // const INDIV_MOAB_FACTOR = 2;
 
-export const GAME_MODES: GameMode[] = ["Original", "Alternate"];
+export const GAME_MODES: Record<GameMode, number> = {
+  Original: 140,
+  Alternate: 100,
+};
 export type GameMode = "Original" | "Alternate";
 export const gameModeToHashRecord: Record<GameMode, number> = {
   Original: 999,

@@ -34,7 +34,7 @@ const Roundle: React.FC = () => {
   const [disableInput, setDisableInput] = React.useState<boolean>(false);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [mode, setMode] = useState<GameMode>("Original");
-  const { answers, seeds, date, nextAnswerIn, loading } = useDailyNumber(140);
+  const { answers, seeds, date, nextAnswerIn, loading } = useDailyNumber();
 
   const GUESS_COUNT_MAX: Record<GameMode, number> = {
     Original: 6,
@@ -156,9 +156,10 @@ const Roundle: React.FC = () => {
         number[]
       >;
 
-      GAME_MODES.forEach((mode) => {
-        newGuesses[mode] = Array.isArray(parsed[mode])
-          ? parsed[mode].map(Number).filter((n) => !isNaN(n))
+      Object.keys(GAME_MODES).forEach((mode) => {
+        const gameMode = mode as GameMode;
+        newGuesses[gameMode] = Array.isArray(parsed[gameMode])
+          ? parsed[gameMode].map(Number).filter((n) => !isNaN(n))
           : [];
       });
 
@@ -178,7 +179,7 @@ const Roundle: React.FC = () => {
         <Tabs
           aria-label="Game Mode Tabs"
           color="primary"
-          items={GAME_MODES.map((mode) => ({
+          items={Object.keys(GAME_MODES).map((mode) => ({
             id: mode,
             label: mode,
             content: mode,
@@ -209,11 +210,11 @@ const Roundle: React.FC = () => {
           <NumberInput
             isClearable
             className="max-w-xs"
-            placeholder="Enter a round"
+            placeholder={"Enter a round between 1 and " + GAME_MODES[mode]}
             name="submittedRound"
             variant="bordered"
             minValue={1}
-            maxValue={originalRounds.rounds.length}
+            maxValue={GAME_MODES[mode]}
             aria-label="Round Guess Input"
             disabled={disableInput}
           />
