@@ -76,8 +76,8 @@ const useDailyNumber = (): DailyNumberResult => {
         //   const tomorrow = new Date(data.utc_iso);
         //   tomorrow.setDate(tomorrow.getDate() + i);
 
-        //   const seed = hashString(tomorrow);
-        //   const number = seed % maxExclusive;
+        //   const seed = hashString(tomorrow, "Alternate");
+        //   const number = seed % GAME_MODES["Alternate"];
 
         //   // track counts
         //   counts[number] = (counts[number] ?? 0) + 1;

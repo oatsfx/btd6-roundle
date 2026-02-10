@@ -135,17 +135,13 @@ const Roundle: React.FC = () => {
     if (Object.values(seeds).length <= 0) return; // wait until seed is loaded
     if (seeds[mode] <= 0) return; // wait until seed is loaded
 
-    console.log("a");
-
     const item = localStorage.getItem("roundleGuesses");
     if (!item) return;
-    console.log("a");
 
     const localId = localStorage.getItem("roundleId");
     if (!localId) return;
     const parsedId = JSON.parse(localId);
     if (parsedId[mode] !== seeds[mode]) return;
-    console.log("a");
 
     try {
       const parsed = JSON.parse(item);
